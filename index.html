@@ -1,36 +1,38 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rueda de la Prevención (Canvas)</title>
+  <title>Rueda de la Prevención</title>
   <style>
-    body {
+    body {{
       font-family: sans-serif;
+      background-color: #f0f4f8;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
       margin: 0;
-      background-color: #f0f4f8;
-    }
-    canvas {
-      border: 8px solid #333;
-      border-radius: 50%;
-      margin-bottom: 1rem;
-    }
-    #pointer {
+      padding-top: 3rem;
+    }}
+    #pointer {{
       width: 0;
       height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 30px solid red;
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+      border-bottom: 40px solid orange;
       position: absolute;
-      top: 20px;
+      top: 120px;
+      left: calc(50% - 25px);
       z-index: 10;
-    }
-    #spin {
+    }}
+    canvas {{
+      border-radius: 50%;
+      border: 8px solid #333;
+      margin-top: 3rem;
+    }}
+    #spin {{
+      margin-top: 2rem;
       padding: 1rem 2rem;
       font-size: 1.2rem;
       background-color: #10b981;
@@ -38,30 +40,28 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-    }
-    #result, #options {
+    }}
+    #result, #options {{
       margin-top: 1.5rem;
       font-size: 1.1rem;
       font-weight: bold;
       text-align: center;
       max-width: 90%;
-    }
-    .option-btn {
+    }}
+    .option-btn {{
       display: block;
       margin: 0.5rem auto;
       padding: 0.5rem 1rem;
       font-size: 1rem;
-      cursor: pointer;
       border: none;
       border-radius: 5px;
       background-color: #e5e7eb;
-    }
+      cursor: pointer;
+    }}
   </style>
 </head>
 <body>
-  <h1>Rueda de la Prevención</h1>
-  <div id="pointer" style="position:absolute; top:140px;"></div>
-  <style>#pointer { left: calc(50% - 20px); }</style>
+  <div id="pointer"></div>
   <canvas id="wheel" width="400" height="400"></canvas>
   <button id="spin">Girar</button>
   <div id="result"></div>
@@ -71,228 +71,18 @@
   <audio id="error-sound" src="https://www.fesliyanstudios.com/play-mp3/6763"></audio>
 
   <script>
-    const preguntas = [
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Qué entidad puede imponer comparendos a menores por comportamientos contrarios a la convivencia?",
-    "opciones": [
-      "A. Policía Nacional",
-      "B. Fiscalía",
-      "C. Alcaldía",
-      "D. ICBF"
-    ],
-    "correcta": "A. Policía Nacional"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Qué tipo de medidas puede imponer la Policía a menores por comportamientos no delictivos?",
-    "opciones": [
-      "A. Cárcel",
-      "B. Multa y pedagogía",
-      "C. Suspensión de cédula",
-      "D. Trabajo forzado"
-    ],
-    "correcta": "B. Multa y pedagogía"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Cuál es un comportamiento contrario a la convivencia en el colegio?",
-    "opciones": [
-      "A. Gritar en clase",
-      "B. No hacer tareas",
-      "C. Rayar paredes con grafitis",
-      "D. Llegar tarde"
-    ],
-    "correcta": "C. Rayar paredes con grafitis"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Qué busca principalmente el Código de Policía y Convivencia?",
-    "opciones": [
-      "A. Castigar",
-      "B. Reprimir",
-      "C. Prevenir y educar",
-      "D. Detener"
-    ],
-    "correcta": "C. Prevenir y educar"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Qué sucede si un menor reincide en comportamientos contrarios a la convivencia?",
-    "opciones": [
-      "A. Es judicializado",
-      "B. Va a la cárcel",
-      "C. Puede ser sancionado pedagógicamente",
-      "D. Nada"
-    ],
-    "correcta": "C. Puede ser sancionado pedagógicamente"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿A partir de qué edad los adolescentes responden penalmente en Colombia?",
-    "opciones": [
-      "A. 10 años",
-      "B. 12 años",
-      "C. 14 años",
-      "D. 18 años"
-    ],
-    "correcta": "C. 14 años"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Qué busca el sistema penal adolescente?",
-    "opciones": [
-      "A. Castigo",
-      "B. Rehabilitación y resocialización",
-      "C. Internamiento perpetuo",
-      "D. Multas severas"
-    ],
-    "correcta": "B. Rehabilitación y resocialización"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Qué medida puede tomar un juez frente a un adolescente que comete un delito grave?",
-    "opciones": [
-      "A. Libertad inmediata",
-      "B. Internamiento preventivo",
-      "C. Suspensión indefinida",
-      "D. Deportación"
-    ],
-    "correcta": "B. Internamiento preventivo"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Qué institución protege los derechos del adolescente durante un proceso penal?",
-    "opciones": [
-      "A. INPEC",
-      "B. Policía",
-      "C. Defensoría de Familia",
-      "D. Procuraduría"
-    ],
-    "correcta": "C. Defensoría de Familia"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Cuál es la duración máxima de una sanción para adolescentes en conflicto con la ley?",
-    "opciones": [
-      "A. 3 años",
-      "B. 5 años",
-      "C. 8 años",
-      "D. 10 años"
-    ],
-    "correcta": "C. 8 años"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Es legal que un menor consuma alcohol en espacio público?",
-    "opciones": [
-      "A. Sí",
-      "B. No",
-      "C. Solo si está con padres",
-      "D. Si no hay policías"
-    ],
-    "correcta": "B. No"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Un menor puede ser juzgado como adulto en Colombia?",
-    "opciones": [
-      "A. Sí",
-      "B. No",
-      "C. Solo desde los 16 años",
-      "D. Depende del delito"
-    ],
-    "correcta": "B. No"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Qué conducta puede dar lugar a un comparendo pedagógico?",
-    "opciones": [
-      "A. Robar",
-      "B. Rayar el colegio",
-      "C. Gritar a un profesor",
-      "D. Dormir en clase"
-    ],
-    "correcta": "B. Rayar el colegio"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Qué tipo de sanciones contempla la Ley 1098 para adolescentes?",
-    "opciones": [
-      "A. Cárcel común",
-      "B. Medidas socioeducativas",
-      "C. Extradición",
-      "D. Amonestación pública"
-    ],
-    "correcta": "B. Medidas socioeducativas"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Cuál de estos NO es un derecho del adolescente infractor?",
-    "opciones": [
-      "A. Defensa técnica",
-      "B. Ser escuchado",
-      "C. Ser golpeado si reincide",
-      "D. Educación"
-    ],
-    "correcta": "C. Ser golpeado si reincide"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Qué comportamiento puede alterar la tranquilidad del vecindario?",
-    "opciones": [
-      "A. Escuchar música a volumen alto en la noche",
-      "B. Tener plantas en casa",
-      "C. Pasear al perro con correa",
-      "D. Saludar a los vecinos"
-    ],
-    "correcta": "A. Escuchar música a volumen alto en la noche"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Qué sucede si un menor comete un delito por primera vez?",
-    "opciones": [
-      "A. Siempre es internado",
-      "B. Puede recibir una medida de orientación",
-      "C. Se castiga a los padres",
-      "D. Va a la cárcel"
-    ],
-    "correcta": "B. Puede recibir una medida de orientación"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Qué significa SRPA?",
-    "opciones": [
-      "A. Sistema Reforzado Penal de Adultos",
-      "B. Sistema de Reclusión Policial Activa",
-      "C. Sistema de Responsabilidad Penal para Adolescentes",
-      "D. Secretaría de Rehabilitación Penal y Abuso"
-    ],
-    "correcta": "C. Sistema de Responsabilidad Penal para Adolescentes"
-  },
-  {
-    "tema": "Convivencia",
-    "pregunta": "¿Qué autoridad aplica comparendos por riñas callejeras entre menores?",
-    "opciones": [
-      "A. Policía",
-      "B. Juez",
-      "C. Personero",
-      "D. Bomberos"
-    ],
-    "correcta": "A. Policía"
-  },
-  {
-    "tema": "PenalAdol",
-    "pregunta": "¿Qué edad marca el paso del sistema penal adolescente al de adultos?",
-    "opciones": [
-      "A. 14 años",
-      "B. 16 años",
-      "C. 18 años",
-      "D. 21 años"
-    ],
-    "correcta": "C. 18 años"
-  }
-];
+    const temas = [
+      {{ tema: "Sexual", color: "#e63946" }},
+      {{ tema: "Drogas", color: "#f77f00" }},
+      {{ tema: "Maltrato", color: "#fcbf49" }},
+      {{ tema: "Convivencia", color: "#2a9d8f" }},
+      {{ tema: "Penal", color: "#90e0ef" }},
+      {{ tema: "Penal", color: "#0077b6" }},
+      {{ tema: "Grooming", color: "#9d4edd" }},
+      {{ tema: "Cibernético", color: "#f2542d" }}
+    ];
+
+    const preguntas = [{"tema": "Convivencia", "pregunta": "¿Qué entidad puede imponer comparendos a menores por comportamientos contrarios a la convivencia?", "opciones": ["A. Policía Nacional", "B. Fiscalía", "C. Alcaldía", "D. ICBF"], "correcta": "A. Policía Nacional"}, {"tema": "Convivencia", "pregunta": "¿Qué tipo de medidas puede imponer la Policía a menores por comportamientos no delictivos?", "opciones": ["A. Cárcel", "B. Multa y pedagogía", "C. Suspensión de cédula", "D. Trabajo forzado"], "correcta": "B. Multa y pedagogía"}, {"tema": "Convivencia", "pregunta": "¿Cuál es un comportamiento contrario a la convivencia en el colegio?", "opciones": ["A. Gritar en clase", "B. No hacer tareas", "C. Rayar paredes con grafitis", "D. Llegar tarde"], "correcta": "C. Rayar paredes con grafitis"}, {"tema": "Convivencia", "pregunta": "¿Qué busca principalmente el Código de Policía y Convivencia?", "opciones": ["A. Castigar", "B. Reprimir", "C. Prevenir y educar", "D. Detener"], "correcta": "C. Prevenir y educar"}, {"tema": "Convivencia", "pregunta": "¿Qué sucede si un menor reincide en comportamientos contrarios a la convivencia?", "opciones": ["A. Es judicializado", "B. Va a la cárcel", "C. Puede ser sancionado pedagógicamente", "D. Nada"], "correcta": "C. Puede ser sancionado pedagógicamente"}, {"tema": "PenalAdol", "pregunta": "¿A partir de qué edad los adolescentes responden penalmente en Colombia?", "opciones": ["A. 10 años", "B. 12 años", "C. 14 años", "D. 18 años"], "correcta": "C. 14 años"}, {"tema": "PenalAdol", "pregunta": "¿Qué busca el sistema penal adolescente?", "opciones": ["A. Castigo", "B. Rehabilitación y resocialización", "C. Internamiento perpetuo", "D. Multas severas"], "correcta": "B. Rehabilitación y resocialización"}, {"tema": "PenalAdol", "pregunta": "¿Qué medida puede tomar un juez frente a un adolescente que comete un delito grave?", "opciones": ["A. Libertad inmediata", "B. Internamiento preventivo", "C. Suspensión indefinida", "D. Deportación"], "correcta": "B. Internamiento preventivo"}, {"tema": "PenalAdol", "pregunta": "¿Qué institución protege los derechos del adolescente durante un proceso penal?", "opciones": ["A. INPEC", "B. Policía", "C. Defensoría de Familia", "D. Procuraduría"], "correcta": "C. Defensoría de Familia"}, {"tema": "PenalAdol", "pregunta": "¿Cuál es la duración máxima de una sanción para adolescentes en conflicto con la ley?", "opciones": ["A. 3 años", "B. 5 años", "C. 8 años", "D. 10 años"], "correcta": "C. 8 años"}, {"tema": "Convivencia", "pregunta": "¿Es legal que un menor consuma alcohol en espacio público?", "opciones": ["A. Sí", "B. No", "C. Solo si está con padres", "D. Si no hay policías"], "correcta": "B. No"}, {"tema": "PenalAdol", "pregunta": "¿Un menor puede ser juzgado como adulto en Colombia?", "opciones": ["A. Sí", "B. No", "C. Solo desde los 16 años", "D. Depende del delito"], "correcta": "B. No"}, {"tema": "Convivencia", "pregunta": "¿Qué conducta puede dar lugar a un comparendo pedagógico?", "opciones": ["A. Robar", "B. Rayar el colegio", "C. Gritar a un profesor", "D. Dormir en clase"], "correcta": "B. Rayar el colegio"}, {"tema": "PenalAdol", "pregunta": "¿Qué tipo de sanciones contempla la Ley 1098 para adolescentes?", "opciones": ["A. Cárcel común", "B. Medidas socioeducativas", "C. Extradición", "D. Amonestación pública"], "correcta": "B. Medidas socioeducativas"}, {"tema": "PenalAdol", "pregunta": "¿Cuál de estos NO es un derecho del adolescente infractor?", "opciones": ["A. Defensa técnica", "B. Ser escuchado", "C. Ser golpeado si reincide", "D. Educación"], "correcta": "C. Ser golpeado si reincide"}, {"tema": "Convivencia", "pregunta": "¿Qué comportamiento puede alterar la tranquilidad del vecindario?", "opciones": ["A. Escuchar música a volumen alto en la noche", "B. Tener plantas en casa", "C. Pasear al perro con correa", "D. Saludar a los vecinos"], "correcta": "A. Escuchar música a volumen alto en la noche"}, {"tema": "PenalAdol", "pregunta": "¿Qué sucede si un menor comete un delito por primera vez?", "opciones": ["A. Siempre es internado", "B. Puede recibir una medida de orientación", "C. Se castiga a los padres", "D. Va a la cárcel"], "correcta": "B. Puede recibir una medida de orientación"}, {"tema": "PenalAdol", "pregunta": "¿Qué significa SRPA?", "opciones": ["A. Sistema Reforzado Penal de Adultos", "B. Sistema de Reclusión Policial Activa", "C. Sistema de Responsabilidad Penal para Adolescentes", "D. Secretaría de Rehabilitación Penal y Abuso"], "correcta": "C. Sistema de Responsabilidad Penal para Adolescentes"}, {"tema": "Convivencia", "pregunta": "¿Qué autoridad aplica comparendos por riñas callejeras entre menores?", "opciones": ["A. Policía", "B. Juez", "C. Personero", "D. Bomberos"], "correcta": "A. Policía"}, {"tema": "PenalAdol", "pregunta": "¿Qué edad marca el paso del sistema penal adolescente al de adultos?", "opciones": ["A. 14 años", "B. 16 años", "C. 18 años", "D. 21 años"], "correcta": "C. 18 años"}];
 
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
@@ -306,7 +96,7 @@
     let spinning = false;
 
     function drawWheel() {
-      const num = preguntas.length;
+      const num = temas.length;
       const anglePerSlice = 2 * Math.PI / num;
 
       for (let i = 0; i < num; i++) {
@@ -314,7 +104,7 @@
         const end = start + anglePerSlice;
         ctx.beginPath();
         ctx.moveTo(200, 200);
-        ctx.fillStyle = `hsl(${i * 360 / num}, 70%, 60%)`;
+        ctx.fillStyle = temas[i].color;
         ctx.arc(200, 200, 200, start, end);
         ctx.lineTo(200, 200);
         ctx.fill();
@@ -324,8 +114,8 @@
         ctx.rotate(start + anglePerSlice / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "white";
-        ctx.font = "bold 14px sans-serif";
-        ctx.fillText(preguntas[i].tema, 170, 10);
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText(temas[i].tema, 170, 10);
         ctx.restore();
       }
     }
@@ -337,18 +127,18 @@
       let rotation = Math.random() * 360 + 720;
       angle += rotation;
       canvas.style.transition = "transform 3s ease-out";
-      canvas.style.transform = `rotate(${angle}deg)`;
+      canvas.style.transform = 'rotate(' + angle + 'deg)';
 
       setTimeout(() => {
         const normalized = angle % 360;
-        const slice = Math.floor(preguntas.length - (normalized / 360) * preguntas.length) % preguntas.length;
-        mostrarPregunta(preguntas[slice]);
+        const slice = Math.floor(temas.length - (normalized / 360) * temas.length) % temas.length;
+        mostrarPregunta(preguntas[Math.floor(Math.random() * preguntas.length)]);
         spinning = false;
       }, 3100);
     }
 
     function mostrarPregunta(pregunta) {
-      result.innerText = `Pregunta: ${pregunta.pregunta}`;
+      result.innerText = "Pregunta: " + pregunta.pregunta;
       optionsDiv.innerHTML = "";
       pregunta.opciones.forEach(op => {
         const btn = document.createElement("button");
