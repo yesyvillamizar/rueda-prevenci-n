@@ -60,14 +60,15 @@
 </head>
 <body>
   <h1>Rueda de la Prevención</h1>
-  <div id="pointer"></div>
+  <div id="pointer" style="position:absolute; top:140px;"></div>
+  <style>#pointer { left: calc(50% - 20px); }</style>
   <canvas id="wheel" width="400" height="400"></canvas>
   <button id="spin">Girar</button>
   <div id="result"></div>
   <div id="options"></div>
 
   <audio id="win-sound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
-  <audio id="error-sound" src="https://www.fesliyanstudios.com/play-mp3/4386"></audio>
+  <audio id="error-sound" src="https://www.fesliyanstudios.com/play-mp3/6763"></audio>
 
   <script>
     const preguntas = [
