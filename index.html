@@ -1,40 +1,34 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rueda de la Prevención</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rueda de la Prevención (Canvas)</title>
   <style>
     body {
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       margin: 0;
-      padding: 2rem;
       background-color: #f0f4f8;
     }
-    #wheel {
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
+    canvas {
       border: 8px solid #333;
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 2rem;
-      transition: transform 3s ease-out;
+      border-radius: 50%;
+      margin-bottom: 1rem;
     }
-    .segment {
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
       position: absolute;
-      width: 50%;
-      height: 50%;
-      background-color: #4f46e5;
-      transform-origin: 100% 100%;
-      color: white;
-      text-align: right;
-      padding: 1rem;
-      box-sizing: border-box;
+      top: 20px;
+      z-index: 10;
     }
     #spin {
       padding: 1rem 2rem;
@@ -50,6 +44,7 @@
       font-size: 1.1rem;
       font-weight: bold;
       text-align: center;
+      max-width: 90%;
     }
     .option-btn {
       display: block;
@@ -65,120 +60,314 @@
 </head>
 <body>
   <h1>Rueda de la Prevención</h1>
-  <div id="wheel"></div>
+  <div id="pointer"></div>
+  <canvas id="wheel" width="400" height="400"></canvas>
   <button id="spin">Girar</button>
   <div id="result"></div>
   <div id="options"></div>
 
   <audio id="win-sound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
-  <audio id="error-sound" src="https://www.soundjay.com/button/sounds/beep-07.mp3"></audio>
+  <audio id="error-sound" src="https://www.fesliyanstudios.com/play-mp3/4386"></audio>
 
   <script>
     const preguntas = [
-      {
-        pregunta: "¿Desde qué edad hay responsabilidad penal en Colombia?",
-        opciones: ["A. Desde los 12 años", "B. Desde los 14 años", "C. Desde los 16 años", "D. Desde los 18 años"],
-        correcta: "B. Desde los 14 años"
-      },
-      {
-        pregunta: "¿Qué es el grooming?",
-        opciones: ["A. Un juego en línea", "B. El contacto físico entre jóvenes", "C. Un adulto que engaña a un menor por internet con fines sexuales", "D. Una tendencia en redes sociales"],
-        correcta: "C. Un adulto que engaña a un menor por internet con fines sexuales"
-      },
-      {
-        pregunta: "¿Cuál es un ejemplo de maltrato infantil?",
-        opciones: ["A. Corregir con amor", "B. Ignorar las emociones del niño", "C. Negar comida como castigo", "D. Poner límites saludables"],
-        correcta: "C. Negar comida como castigo"
-      },
-      {
-        pregunta: "¿Qué sustancia puede ser mortal en pequeñas cantidades?",
-        opciones: ["A. Alcohol", "B. Marihuana", "C. Fentanilo", "D. Tabaco"],
-        correcta: "C. Fentanilo"
-      },
-      {
-        pregunta: "¿Qué hacer si te piden fotos íntimas?",
-        opciones: ["A. Enviarlas si confías en la persona", "B. Ignorar el mensaje", "C. Guardarlas para después", "D. No enviarlas y denunciarlo"],
-        correcta: "D. No enviarlas y denunciarlo"
-      },
-      {
-        pregunta: "¿Quién atiende casos de abuso infantil en Colombia?",
-        opciones: ["A. La DIAN", "B. El ICBF", "C. El SENA", "D. El INPEC"],
-        correcta: "B. El ICBF"
-      },
-      {
-        pregunta: "¿Cuál es una señal de trata de personas?",
-        opciones: ["A. Te ofrecen mucho dinero por un trabajo confuso", "B. Te piden tus documentos personales", "C. No te explican bien a dónde vas", "D. Todas las anteriores"],
-        correcta: "D. Todas las anteriores"
-      },
-      {
-        pregunta: "¿Qué hacer si un amigo consume drogas?",
-        opciones: ["A. Callar por lealtad", "B. Probar para entenderlo", "C. Buscar ayuda de un adulto o profesional", "D. Alejarte sin decir nada"],
-        correcta: "C. Buscar ayuda de un adulto o profesional"
-      },
-      {
-        pregunta: "¿Qué delito es compartir videos íntimos de menores?",
-        opciones: ["A. Acoso escolar", "B. Pornografía infantil", "C. Ciberbullying", "D. Sexting normal"],
-        correcta: "B. Pornografía infantil"
-      },
-      {
-        pregunta: "¿Cómo ayudar a alguien víctima de bullying?",
-        opciones: ["A. Grabar el acoso", "B. Reírse para no quedar mal", "C. Defenderlo o avisar a un adulto", "D. Compartirlo en redes para que se sepa"],
-        correcta: "C. Defenderlo o avisar a un adulto"
-      }
-    ];
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Qué entidad puede imponer comparendos a menores por comportamientos contrarios a la convivencia?",
+    "opciones": [
+      "A. Policía Nacional",
+      "B. Fiscalía",
+      "C. Alcaldía",
+      "D. ICBF"
+    ],
+    "correcta": "A. Policía Nacional"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Qué tipo de medidas puede imponer la Policía a menores por comportamientos no delictivos?",
+    "opciones": [
+      "A. Cárcel",
+      "B. Multa y pedagogía",
+      "C. Suspensión de cédula",
+      "D. Trabajo forzado"
+    ],
+    "correcta": "B. Multa y pedagogía"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Cuál es un comportamiento contrario a la convivencia en el colegio?",
+    "opciones": [
+      "A. Gritar en clase",
+      "B. No hacer tareas",
+      "C. Rayar paredes con grafitis",
+      "D. Llegar tarde"
+    ],
+    "correcta": "C. Rayar paredes con grafitis"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Qué busca principalmente el Código de Policía y Convivencia?",
+    "opciones": [
+      "A. Castigar",
+      "B. Reprimir",
+      "C. Prevenir y educar",
+      "D. Detener"
+    ],
+    "correcta": "C. Prevenir y educar"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Qué sucede si un menor reincide en comportamientos contrarios a la convivencia?",
+    "opciones": [
+      "A. Es judicializado",
+      "B. Va a la cárcel",
+      "C. Puede ser sancionado pedagógicamente",
+      "D. Nada"
+    ],
+    "correcta": "C. Puede ser sancionado pedagógicamente"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿A partir de qué edad los adolescentes responden penalmente en Colombia?",
+    "opciones": [
+      "A. 10 años",
+      "B. 12 años",
+      "C. 14 años",
+      "D. 18 años"
+    ],
+    "correcta": "C. 14 años"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Qué busca el sistema penal adolescente?",
+    "opciones": [
+      "A. Castigo",
+      "B. Rehabilitación y resocialización",
+      "C. Internamiento perpetuo",
+      "D. Multas severas"
+    ],
+    "correcta": "B. Rehabilitación y resocialización"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Qué medida puede tomar un juez frente a un adolescente que comete un delito grave?",
+    "opciones": [
+      "A. Libertad inmediata",
+      "B. Internamiento preventivo",
+      "C. Suspensión indefinida",
+      "D. Deportación"
+    ],
+    "correcta": "B. Internamiento preventivo"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Qué institución protege los derechos del adolescente durante un proceso penal?",
+    "opciones": [
+      "A. INPEC",
+      "B. Policía",
+      "C. Defensoría de Familia",
+      "D. Procuraduría"
+    ],
+    "correcta": "C. Defensoría de Familia"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Cuál es la duración máxima de una sanción para adolescentes en conflicto con la ley?",
+    "opciones": [
+      "A. 3 años",
+      "B. 5 años",
+      "C. 8 años",
+      "D. 10 años"
+    ],
+    "correcta": "C. 8 años"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Es legal que un menor consuma alcohol en espacio público?",
+    "opciones": [
+      "A. Sí",
+      "B. No",
+      "C. Solo si está con padres",
+      "D. Si no hay policías"
+    ],
+    "correcta": "B. No"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Un menor puede ser juzgado como adulto en Colombia?",
+    "opciones": [
+      "A. Sí",
+      "B. No",
+      "C. Solo desde los 16 años",
+      "D. Depende del delito"
+    ],
+    "correcta": "B. No"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Qué conducta puede dar lugar a un comparendo pedagógico?",
+    "opciones": [
+      "A. Robar",
+      "B. Rayar el colegio",
+      "C. Gritar a un profesor",
+      "D. Dormir en clase"
+    ],
+    "correcta": "B. Rayar el colegio"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Qué tipo de sanciones contempla la Ley 1098 para adolescentes?",
+    "opciones": [
+      "A. Cárcel común",
+      "B. Medidas socioeducativas",
+      "C. Extradición",
+      "D. Amonestación pública"
+    ],
+    "correcta": "B. Medidas socioeducativas"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Cuál de estos NO es un derecho del adolescente infractor?",
+    "opciones": [
+      "A. Defensa técnica",
+      "B. Ser escuchado",
+      "C. Ser golpeado si reincide",
+      "D. Educación"
+    ],
+    "correcta": "C. Ser golpeado si reincide"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Qué comportamiento puede alterar la tranquilidad del vecindario?",
+    "opciones": [
+      "A. Escuchar música a volumen alto en la noche",
+      "B. Tener plantas en casa",
+      "C. Pasear al perro con correa",
+      "D. Saludar a los vecinos"
+    ],
+    "correcta": "A. Escuchar música a volumen alto en la noche"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Qué sucede si un menor comete un delito por primera vez?",
+    "opciones": [
+      "A. Siempre es internado",
+      "B. Puede recibir una medida de orientación",
+      "C. Se castiga a los padres",
+      "D. Va a la cárcel"
+    ],
+    "correcta": "B. Puede recibir una medida de orientación"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Qué significa SRPA?",
+    "opciones": [
+      "A. Sistema Reforzado Penal de Adultos",
+      "B. Sistema de Reclusión Policial Activa",
+      "C. Sistema de Responsabilidad Penal para Adolescentes",
+      "D. Secretaría de Rehabilitación Penal y Abuso"
+    ],
+    "correcta": "C. Sistema de Responsabilidad Penal para Adolescentes"
+  },
+  {
+    "tema": "Convivencia",
+    "pregunta": "¿Qué autoridad aplica comparendos por riñas callejeras entre menores?",
+    "opciones": [
+      "A. Policía",
+      "B. Juez",
+      "C. Personero",
+      "D. Bomberos"
+    ],
+    "correcta": "A. Policía"
+  },
+  {
+    "tema": "PenalAdol",
+    "pregunta": "¿Qué edad marca el paso del sistema penal adolescente al de adultos?",
+    "opciones": [
+      "A. 14 años",
+      "B. 16 años",
+      "C. 18 años",
+      "D. 21 años"
+    ],
+    "correcta": "C. 18 años"
+  }
+];
 
-    const wheel = document.getElementById("wheel");
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
     const result = document.getElementById("result");
     const optionsDiv = document.getElementById("options");
     const winSound = document.getElementById("win-sound");
     const errorSound = document.getElementById("error-sound");
+    const spinBtn = document.getElementById("spin");
 
-    function createWheel() {
-      const numSegments = preguntas.length;
-      const angle = 360 / numSegments;
+    let angle = 0;
+    let spinning = false;
 
-      preguntas.forEach((q, i) => {
-        const segment = document.createElement("div");
-        segment.className = "segment";
-        segment.style.transform = `rotate(${i * angle}deg) skewY(-${90 - angle}deg)`;
-        segment.innerText = q.pregunta.slice(0, 25) + "...";
-        wheel.appendChild(segment);
-      });
+    function drawWheel() {
+      const num = preguntas.length;
+      const anglePerSlice = 2 * Math.PI / num;
+
+      for (let i = 0; i < num; i++) {
+        const start = i * anglePerSlice;
+        const end = start + anglePerSlice;
+        ctx.beginPath();
+        ctx.moveTo(200, 200);
+        ctx.fillStyle = `hsl(${i * 360 / num}, 70%, 60%)`;
+        ctx.arc(200, 200, 200, start, end);
+        ctx.lineTo(200, 200);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(200, 200);
+        ctx.rotate(start + anglePerSlice / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "white";
+        ctx.font = "bold 14px sans-serif";
+        ctx.fillText(preguntas[i].tema, 170, 10);
+        ctx.restore();
+      }
     }
 
-    let spinning = false;
-    document.getElementById("spin").onclick = function () {
+    function spinWheel() {
       if (spinning) return;
       spinning = true;
       optionsDiv.innerHTML = "";
-      const angle = Math.floor(Math.random() * 360) + 720;
-      wheel.style.transform = `rotate(${angle}deg)`;
+      let rotation = Math.random() * 360 + 720;
+      angle += rotation;
+      canvas.style.transition = "transform 3s ease-out";
+      canvas.style.transform = `rotate(${angle}deg)`;
 
       setTimeout(() => {
-        const index = Math.floor(((angle % 360) / 360) * preguntas.length);
-        const pregunta = preguntas[index];
-        result.innerText = `Pregunta: ${pregunta.pregunta}`;
-
-        pregunta.opciones.forEach(op => {
-          const btn = document.createElement("button");
-          btn.className = "option-btn";
-          btn.textContent = op;
-          btn.onclick = () => {
-            if (op === pregunta.correcta) {
-              winSound.play();
-              alert("¡Correcto! Bien hecho.");
-            } else {
-              errorSound.play();
-              alert("Respuesta incorrecta. Intenta otra vez.");
-            }
-          };
-          optionsDiv.appendChild(btn);
-        });
+        const normalized = angle % 360;
+        const slice = Math.floor(preguntas.length - (normalized / 360) * preguntas.length) % preguntas.length;
+        mostrarPregunta(preguntas[slice]);
         spinning = false;
       }, 3100);
-    };
+    }
 
-    createWheel();
+    function mostrarPregunta(pregunta) {
+      result.innerText = `Pregunta: ${pregunta.pregunta}`;
+      optionsDiv.innerHTML = "";
+      pregunta.opciones.forEach(op => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = op;
+        btn.onclick = () => {
+          if (op === pregunta.correcta) {
+            winSound.play();
+            alert("¡Correcto! Bien hecho.");
+          } else {
+            errorSound.play();
+            alert("Respuesta incorrecta. Intenta otra vez.");
+          }
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    drawWheel();
+    spinBtn.onclick = spinWheel;
   </script>
 </body>
 </html>
